@@ -115,6 +115,8 @@ function loop(now) {
 
 if (shotName === null) {
   requestAnimationFrame(loop);
+  // QA hook: exposes the live world for automated tests without touching the simulation.
+  window.__embermoth = { get world() { return world; }, input };
 } else {
   // Scene mode: paint the staged frame once synchronously (the backing store then holds it even
   // if this tab's display pipeline is throttled), and keep rendering per display frame besides.

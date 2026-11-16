@@ -9,8 +9,9 @@ guard the lantern, hold the vale against ten waves of wisps.
 
 ## Play
 
-`game/index.html` is plain static files — serve the `game/` folder with any static HTTP server
-(no build step, no network request) and open it in desktop Chrome.
+`game/index.html` is plain static files — open `game/index.html` directly in desktop Chrome
+(no server needed: it loads the prebuilt `game/bundle.min.js`), or serve the `game/` folder
+with any static HTTP server.
 
 - **Fly** — WASD or the arrow keys
 - **Aim** — the mouse; **hold the left button** to loose sparks
@@ -25,5 +26,8 @@ Pure canvas 2D ES modules, one file per job under `game/src/`: `world.js` (simul
 `screens.js`, `audio.js` (original Web Audio synth), `shots.js` (deterministic screenshot scenes).
 
 Run the entry: `mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts`
+
+Rebuild the playable bundle after editing `game/src/`:
+`cd game && esbuild src/main.js --bundle --minify --format=iife --outfile=bundle.min.js`
 
 License: MIT.
