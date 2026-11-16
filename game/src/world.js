@@ -67,8 +67,8 @@ export function fireNova(world) {
   world.shake = Math.max(world.shake, 6);
   for (let index = world.enemies.length - 1; index >= 0; index -= 1) {
     const wisp = world.enemies[index];
-    if (distance(wisp, lantern) < 260) {
-      wisp.hp -= 90;
+    if (distance(wisp, lantern) < 200) {
+      wisp.hp -= 60;
       burst(world.particles, wisp.x, wisp.y, 6, PALETTE[wisp.color], { speed: 220, life: 0.5 });
       if (wisp.hp <= 0) removeWisp(world, index);
     }

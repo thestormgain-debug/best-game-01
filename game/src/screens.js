@@ -42,26 +42,32 @@ export function drawBoons(context, world) {
   clearCanvas(context);
   drawPlay(context, world);
   panel(context, 900, 330);
-  centre(context, `WAVE ${world.waveState.wave - 1} HELD — CHOOSE ONE BOON`, ARENA.height / 2 - 104, { size: 26, color: PALETTE.ember });
   const width = 272;
   const gap = 26;
   const startX = (ARENA.width - width * 3 - gap * 2) / 2;
+  const cardTop = ARENA.height / 2 - 60;
+  const cardText = (text, x, y, size, color) => {
+    context.font = `bold ${size}px Georgia, serif`;
+    context.fillStyle = color;
+    context.textAlign = 'center';
+    context.fillText(text, x, y);
+  };
+  cardText(`WAVE ${world.waveState.wave - 1} HELD — CHOOSE ONE BOON`, ARENA.width / 2, ARENA.height / 2 - 104, 26, PALETTE.ember);
   world.offer.forEach((boon, index) => {
     const x = startX + index * (width + gap);
-    const y = ARENA.height / 2 - 60;
     context.fillStyle = 'rgba(17,24,35,0.95)';
-    context.fillRect(x, y, width, 160);
+    context.fillRect(x, cardTop, width, 160);
     context.strokeStyle = PALETTE.mothDark;
     context.lineWidth = 2;
-    context.strokeRect(x, y, width, 160);
-    centre(context, `${index + 1}`, x + width / 2, y + 34, { size: 20, color: PALETTE.moth });
-    centre(context, boon.name, x + width / 2, y + 74, { size: 22, color: PALETTE.text });
+    context.strokeRect(x, cardTop, width, 160);
+    cardText(`${index + 1}`, x + width / 2, cardTop + 34, 20, PALETTE.moth);
+    cardText(boon.name, x + width / 2, cardTop + 74, 22, PALETTE.text);
     context.font = '15px Georgia, serif';
     context.fillStyle = PALETTE.textDim;
     context.textAlign = 'center';
-    context.fillText(boon.desc, x + width / 2, y + 104);
+    context.fillText(boon.desc, x + width / 2, cardTop + 108);
   });
-  centre(context, 'PRESS 1, 2 OR 3 — OR CLICK A BOON', ARENA.height / 2 + 130, { size: 17, color: PALETTE.textDim });
+  cardText('PRESS 1, 2 OR 3 — OR CLICK A BOON', ARENA.width / 2, ARENA.height / 2 + 130, 17, PALETTE.textDim);
 }
 
 function drawEnd(context, world, { headline, colour, detail }) {

@@ -103,9 +103,11 @@ let accumulator = 0;
 function loop(now) {
   accumulator += Math.min((now - last) / 1000, 0.25);
   last = now;
-  while (accumulator >= STEP) {
-    update(STEP);
-    accumulator -= STEP;
+  if (shotName === null) {
+    while (accumulator >= STEP) {
+      update(STEP);
+      accumulator -= STEP;
+    }
   }
   drawFrame();
   requestAnimationFrame(loop);
@@ -114,6 +116,8 @@ function loop(now) {
 if (shotName === null) {
   requestAnimationFrame(loop);
 } else {
-  // Scene mode: draw the frozen, fully staged frame and hold it for the screenshot.
+  // Scene mode: paint the staged frame once synchronously (the backing store then holds it even
+  // if this tab's display pipeline is throttled), and keep rendering per display frame besides.
   drawFrame();
+  requestAnimationFrame(loop);
 }

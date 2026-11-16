@@ -6,7 +6,7 @@ import { ARENA, STEP, WAVES } from './config.js';
 import { chooseBoon, makeWorld, stepWorld } from './world.js';
 
 const START_SECONDS = 3;
-const PLAY_SECONDS = 21;       // mid wave one: a busy HUD, wisps inbound, lantern still healthy
+const PLAY_SECONDS = 26;       // late wave one: several wisps inbound, sparks in flight, HUD busy
 const BOONS_SECONDS = 31;
 const END_LIMIT_SECONDS = 2400;
 
@@ -76,15 +76,16 @@ export function autopilotIntents(world, { skill = 1 } = {}) {
   if (player.y < 110) moveY += 0.8;
   if (player.y > ARENA.height - 110) moveY -= 0.8;
 
-  const aim = target === null
+  const lead = target === null
     ? { x: lantern.x + Math.cos(world.time * 0.8) * 200, y: lantern.y + Math.sin(world.time * 0.8) * 200 }
     : leadAim(target, lantern);
-
+  // A lower-skilled pilot wobbles its aim, so sparks miss and wisps press closer: that is the
+  // mid-fight look the play scene stages, and the harder difficulty it implies.
+  const wobble = (1 - skill) * 55;
   const dash = player.dashCharge >= 1 && Math.hypot(player.x - lantern.x, player.y - lantern.y) > 340;
-
   return {
     move: { x: moveX, y: moveY },
-    pointer: aim,
+    pointer: { x: lead.x + Math.sin(world.time * 7.3) * wobble, y: lead.y + Math.cos(world.time * 6.1) * wobble },
     shooting: target !== null,
     dashPressed: dash,
   };
@@ -118,8 +119,19 @@ export function stageShot(name, seed = 20261116) {
   }
   world.screen = 'play';
   if (name === 'play') {
-    playUntil(world, PLAY_SECONDS, { skill: 1 });
-    return world;
+    // Find the busiest honest frame: replay wave one to each candidate second and keep the one
+    // with the most wisps and sparks on screen while the lantern is still healthy.
+    let best = null;
+    for (const second of [10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 98]) {
+      const candidate = makeWorld(seed);
+      candidate.screen = 'play';
+      playUntil(candidate, second, { skill: 0.55 });
+      if (candidate.screen !== 'play') continue;
+      const busy = candidate.enemies.length + candidate.bullets.length;
+      const healthy = candidate.lantern.hp > candidate.lantern.maxHp * 0.55 && candidate.player.hp > 45;
+      if (healthy && (best === null || busy > best.busy)) best = { busy, world: candidate };
+    }
+    return best.world;
   }
   if (name === 'boons') {
     // Play to the end of wave one, then stop on the boon menu instead of picking.
